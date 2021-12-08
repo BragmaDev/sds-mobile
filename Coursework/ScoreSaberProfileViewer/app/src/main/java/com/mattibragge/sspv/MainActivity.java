@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 
 import org.json.JSONArray;
@@ -25,46 +27,47 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
-    ArrayList<String> profiles = new ArrayList<>();
+    ArrayList<String> profile_names = new ArrayList<>();
+    HashMap<String, String> profile_ids = new HashMap<>();
     Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
-            updateSpinner();
+            updateList();
         }
     };
     ProgressDialog dialog;
-    Spinner profile_spn;
-    ArrayAdapter<String> adapter;
+    ListView profiles_lv;
+    EditText id_et;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        profile_spn = findViewById(R.id.profileSpn);
-        profile_spn.setAdapter(adapter);
-        profile_spn.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
-        });
+        id_et = findViewById(R.id.idEt);
+        profiles_lv = findViewById(R.id.profilesLv);
 
+
+        // Fetching profiles and setting up the ListView
         FetchProfileNames fetch = new FetchProfileNames();
         fetch.start();
-
+        updateList();
+        profiles_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                id_et.setText( profile_ids.get(profile_names.get(i)) );
+            }
+        });
         Button view_profile_btn = findViewById(R.id.viewProfileBtn);
-        view_profile_btn.setOnClickListener(view -> profile_spn.setAdapter(adapter));
     }
 
-    public void updateSpinner() {
-        adapter = new ArrayAdapter(MainActivity.this, R.layout.spinner_layout, profiles);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        profile_spn.setAdapter(adapter);
+    private void updateList() {
+        ProfileAdapter adapter = new ProfileAdapter(this, profile_names);
+        profiles_lv.setAdapter(adapter);
     }
 
     // Gets a list of the top 50 players in Finland from the API
@@ -113,24 +116,24 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            profiles = parseResponse(response);
+            parseResponse(response);
             handler.sendEmptyMessage(0);
         }
 
-        // This function parses the JSON response and returns a list of player names
-        private ArrayList<String> parseResponse(StringBuffer response) {
-            ArrayList<String> names = new ArrayList<>();
+        // This method parses the JSON response and puts the data in profile_names and profile_ids
+        private void parseResponse(StringBuffer response) {
             try {
                 JSONArray json = new JSONArray(response.toString());
                 for (int i = 0; i < json.length(); i++) {
                     JSONObject obj = json.getJSONObject(i);
-                    String name = i+1 + ": " + obj.getString("name");
-                    names.add(name);
+                    String name = obj.getString("name");
+                    String id = obj.getString("id");
+                    profile_ids.put(name, id);
+                    profile_names.add(name);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            return names;
         }
     }
 
