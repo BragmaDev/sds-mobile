@@ -4,17 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Spinner;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,6 +62,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         Button view_profile_btn = findViewById(R.id.viewProfileBtn);
+        view_profile_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!id_et.getText().toString().equals("")) {
+                    Intent show_profile_activity = new Intent(getApplicationContext(), ProfileActivity.class);
+                    show_profile_activity.putExtra("com.mattibragge.sspv.PROFILE_ID", id_et.getText().toString());
+                    startActivity(show_profile_activity);
+                }
+            }
+        });
     }
 
     private void updateList() {
@@ -123,11 +132,12 @@ public class MainActivity extends AppCompatActivity {
         // This method parses the JSON response and puts the data in profile_names and profile_ids
         private void parseResponse(StringBuffer response) {
             try {
-                JSONArray json = new JSONArray(response.toString());
-                for (int i = 0; i < json.length(); i++) {
-                    JSONObject obj = json.getJSONObject(i);
-                    String name = obj.getString("name");
-                    String id = obj.getString("id");
+                JSONObject obj = new JSONObject(response.toString());
+                JSONArray arr = obj.getJSONArray("players");
+                for (int i = 0; i < arr.length(); i++) {
+                    JSONObject players = arr.getJSONObject(i);
+                    String name = players.getString("name");
+                    String id = players.getString("id");
                     profile_ids.put(name, id);
                     profile_names.add(name);
                 }
