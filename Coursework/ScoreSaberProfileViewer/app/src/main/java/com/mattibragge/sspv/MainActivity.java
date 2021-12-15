@@ -135,9 +135,9 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject obj = new JSONObject(response.toString());
                 JSONArray arr = obj.getJSONArray("players");
                 for (int i = 0; i < arr.length(); i++) {
-                    JSONObject players = arr.getJSONObject(i);
-                    String name = players.getString("name");
-                    String id = players.getString("id");
+                    JSONObject player = arr.getJSONObject(i);
+                    String name = player.getString("name");
+                    String id = player.getString("id");
                     profile_ids.put(name, id);
                     profile_names.add(name);
                 }

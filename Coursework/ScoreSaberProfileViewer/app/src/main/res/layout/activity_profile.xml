@@ -91,7 +91,7 @@
         app:layout_constraintTop_toBottomOf="@+id/accuracyTv" />
 
     <ListView
-        android:id="@+id/playsLv"
+        android:id="@+id/scoresLv"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"

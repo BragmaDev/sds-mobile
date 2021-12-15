@@ -12,14 +12,17 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:layout_toEndOf="@+id/coverIv"
         android:text="Song Name"
+        android:textAlignment="textEnd"
         android:textColor="@color/white"
         android:textSize="18sp" />
 
     <TextView
-        android:id="@+id/songRankTv"
+        android:id="@+id/scoreRankTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/songNameTv"
@@ -31,7 +34,7 @@
         android:textSize="18sp" />
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/coverIv"
         android:layout_width="96dp"
         android:layout_height="96dp"
         android:layout_alignParentStart="true"
@@ -41,15 +44,15 @@
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
-        android:id="@+id/songAccuracyTv"
+        android:id="@+id/scoreStatsTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/songRankTv"
+        android:layout_below="@+id/scoreRankTv"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="16dp"
-        android:text="Accuracy"
-        android:textColor="@color/white"
+        android:text="Accuracy, pp"
+        android:textColor="@color/light_gray"
         android:textSize="18sp" />
 </RelativeLayout>

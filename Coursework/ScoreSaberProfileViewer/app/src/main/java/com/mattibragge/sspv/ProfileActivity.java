@@ -4,8 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -20,11 +18,11 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -33,14 +31,25 @@ public class ProfileActivity extends AppCompatActivity {
     double pp, avg_acc;
     int rank, country_rank;
     ImageView picture_iv;
+    ArrayList<Score> scores = new ArrayList<Score>();
+    ListView scores_lv;
+    FetchImage fetch_pfp;
+    FetchScores fetch_scores = new FetchScores();
 
     Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {
+                case 1:
+                    picture_iv.setImageBitmap(fetch_pfp.getBitmap());
+                    fetchScores();
+                    break;
+                case 2:
+                    updateList();
+                    break;
                 default:
                     updateInfo();
-                    updatePicture();
+                    fetchPicture();
             }
         }
     };
@@ -54,6 +63,7 @@ public class ProfileActivity extends AppCompatActivity {
         if (getIntent().hasExtra("com.mattibragge.sspv.PROFILE_ID")) {
             id = getIntent().getExtras().getString("com.mattibragge.sspv.PROFILE_ID");
             picture_iv = (ImageView) findViewById(R.id.pictureIv);
+            scores_lv = (ListView) findViewById(R.id.scoresLv);
 
             FetchProfileInfo fetch_info = new FetchProfileInfo();
             fetch_info.start();
@@ -67,7 +77,7 @@ public class ProfileActivity extends AppCompatActivity {
         TextView profile_rank_tv = (TextView) findViewById(R.id.profileRankTv);
         TextView pp_tv = (TextView) findViewById(R.id.ppTv);
         TextView accuracy_tv = (TextView) findViewById(R.id.accuracyTv);
-        ListView plays_lv = (ListView) findViewById(R.id.playsLv);
+        ListView plays_lv = (ListView) findViewById(R.id.scoresLv);
 
         profile_name_tv.setText(name);
         country_tv.setText(codeToEmoji(country));
@@ -75,6 +85,12 @@ public class ProfileActivity extends AppCompatActivity {
         profile_rank_tv.setText(rank_text);
         pp_tv.setText(String.format(Locale.getDefault(), "%.1fpp", pp));
         accuracy_tv.setText(String.format(Locale.getDefault(), "Avg. accuracy: %.1f%%", avg_acc));
+    }
+
+    // Updates the score list
+    private void updateList() {
+        ScoreAdapter adapter = new ScoreAdapter(this, scores);
+        scores_lv.setAdapter(adapter);
     }
 
     // Takes a country code and returns a corresponding flag emoji
@@ -91,9 +107,15 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     // Starts fetching the profile picture
-    private void updatePicture() {
-        FetchImage fetch_pfp = new FetchImage(pfp_link, picture_iv);
+    private void fetchPicture() {
+        fetch_pfp = new FetchImage(pfp_link, handler);
         fetch_pfp.start();
+    }
+
+    // Starts fetching the scores
+    private void fetchScores() {
+        fetch_scores = new FetchScores();
+        fetch_scores.start();
     }
 
     // Gets profile information from the API based on the player ID
@@ -164,6 +186,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    /*
     // Gets an image from a URL and puts it to a given ImageView
     class FetchImage extends Thread {
         String url;
@@ -207,6 +230,78 @@ public class ProfileActivity extends AppCompatActivity {
                     img.setImageBitmap(bm);
                 }
             });
+        }
+    } */
+
+    // Gets profile information from the API based on the player ID
+    class FetchScores extends Thread {
+        StringBuffer response = new StringBuffer();
+
+        @Override
+        public void run() {
+
+            // Showing the progress bar
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    dialog = new ProgressDialog(ProfileActivity.this);
+                    dialog.setMessage("Fetching Scores");
+                    dialog.setCancelable(false);
+                    dialog.show();
+                }
+            });
+
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL("https://scoresaber.com/api/player/" + id + "/scores?sort=top&page=1");
+                conn = (HttpURLConnection) url.openConnection();
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String line;
+                while ((line = in.readLine()) != null) {
+                    response.append(line + "\n");
+                }
+                in.close();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                conn.disconnect();
+            }
+
+            // Hiding the progress bar
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+                }
+            });
+
+            parseResponse(response);
+            handler.sendEmptyMessage(2);
+        }
+
+        // This method parses the JSON response and updates the variables
+        private void parseResponse(StringBuffer response) {
+            try {
+                JSONObject obj = new JSONObject(response.toString());
+                JSONArray arr = obj.getJSONArray("playerScores");
+                for (int i = 0; i < arr.length(); i++) {
+                    JSONObject score = arr.getJSONObject(i).getJSONObject("score");
+                    JSONObject leaderboard = arr.getJSONObject(i).getJSONObject("leaderboard");
+                    String song_name = leaderboard.getString("songName");
+                    String cover_link = leaderboard.getString("coverImage");
+                    int score_rank = score.getInt("rank");
+                    double score_acc = (double)score.getInt("baseScore") / (double)leaderboard.getInt("maxScore") * 100;
+                    double score_pp = score.getDouble("pp");
+                    Score s = new Score(song_name, cover_link, score_rank, score_acc, score_pp);
+                    scores.add(s);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
