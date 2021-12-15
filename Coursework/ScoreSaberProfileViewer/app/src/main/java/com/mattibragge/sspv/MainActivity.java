@@ -3,7 +3,10 @@ package com.mattibragge.sspv;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -35,7 +39,20 @@ public class MainActivity extends AppCompatActivity {
     Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
-            updateList();
+            if (msg.what == -1) {
+                AlertDialog alert = new AlertDialog.Builder(MainActivity.this).create();
+                alert.setTitle("Error");
+                alert.setMessage("Players could not be fetched");
+                alert.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface d, int which) {
+                                d.dismiss();
+                            }
+                        });
+                alert.show();
+            } else {
+                updateList();
+            }
         }
     };
     ProgressDialog dialog;
@@ -91,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     dialog = new ProgressDialog(MainActivity.this);
-                    dialog.setMessage("Fetching Users");
+                    dialog.setMessage("Fetching Players");
                     dialog.setCancelable(false);
                     dialog.show();
                 }
@@ -131,8 +148,14 @@ public class MainActivity extends AppCompatActivity {
 
         // This method parses the JSON response and puts the data in profile_names and profile_ids
         private void parseResponse(StringBuffer response) {
+            if (response.length() == 0) {
+                handler.sendEmptyMessage(-1);
+                return;
+            }
+
             try {
                 JSONObject obj = new JSONObject(response.toString());
+                System.out.println(response.toString());
                 JSONArray arr = obj.getJSONArray("players");
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject player = arr.getJSONObject(i);

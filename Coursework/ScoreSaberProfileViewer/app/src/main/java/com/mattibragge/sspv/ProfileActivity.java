@@ -3,7 +3,9 @@ package com.mattibragge.sspv;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -40,6 +42,19 @@ public class ProfileActivity extends AppCompatActivity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {
+                case -1:
+                    AlertDialog alert = new AlertDialog.Builder(ProfileActivity.this).create();
+                    alert.setTitle("Error");
+                    alert.setMessage("Information could not be fetched");
+                    alert.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface d, int which) {
+                                    d.dismiss();
+                                    finish();
+                                }
+                            });
+                    alert.show();
+                    break;
                 case 1:
                     picture_iv.setImageBitmap(fetch_pfp.getBitmap());
                     fetchScores();
@@ -170,6 +185,11 @@ public class ProfileActivity extends AppCompatActivity {
 
         // This method parses the JSON response and updates the variables
         private void parseResponse(StringBuffer response) {
+            if (response.length() == 0) {
+                handler.sendEmptyMessage(-1);
+                return;
+            }
+
             try {
                 JSONObject json = new JSONObject(response.toString());
                 name = json.getString("name");
@@ -283,8 +303,13 @@ public class ProfileActivity extends AppCompatActivity {
             handler.sendEmptyMessage(2);
         }
 
-        // This method parses the JSON response and updates the variables
+        // This method parses the JSON response and fills the scores arraylist with score objects
         private void parseResponse(StringBuffer response) {
+            if (response.length() == 0) {
+                handler.sendEmptyMessage(-1);
+                return;
+            }
+
             try {
                 JSONObject obj = new JSONObject(response.toString());
                 JSONArray arr = obj.getJSONArray("playerScores");
