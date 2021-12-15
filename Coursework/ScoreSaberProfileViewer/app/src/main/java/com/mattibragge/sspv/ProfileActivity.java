@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -92,7 +93,6 @@ public class ProfileActivity extends AppCompatActivity {
         TextView profile_rank_tv = (TextView) findViewById(R.id.profileRankTv);
         TextView pp_tv = (TextView) findViewById(R.id.ppTv);
         TextView accuracy_tv = (TextView) findViewById(R.id.accuracyTv);
-        ListView plays_lv = (ListView) findViewById(R.id.scoresLv);
 
         profile_name_tv.setText(name);
         country_tv.setText(codeToEmoji(country));
@@ -205,53 +205,6 @@ public class ProfileActivity extends AppCompatActivity {
             }
         }
     }
-
-    /*
-    // Gets an image from a URL and puts it to a given ImageView
-    class FetchImage extends Thread {
-        String url;
-        Bitmap bm;
-        ImageView img;
-
-        FetchImage(String url, ImageView img) {
-            this.url = url;
-            this.img = img;
-        }
-
-        @Override
-        public void run() {
-
-            // Showing the progress bar
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    dialog = new ProgressDialog(ProfileActivity.this);
-                    dialog.setMessage("Fetching Information");
-                    dialog.setCancelable(false);
-                    dialog.show();
-                }
-            });
-
-            // Reading the image from the URL
-            try {
-                InputStream is = new URL(url).openStream();
-                bm = BitmapFactory.decodeStream(is);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            // Hiding the progress bar and setting the image bitmap
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (dialog.isShowing()) {
-                        dialog.dismiss();
-                    }
-                    img.setImageBitmap(bm);
-                }
-            });
-        }
-    } */
 
     // Gets profile information from the API based on the player ID
     class FetchScores extends Thread {

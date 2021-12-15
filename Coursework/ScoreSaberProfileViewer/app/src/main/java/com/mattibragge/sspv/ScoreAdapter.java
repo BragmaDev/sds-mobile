@@ -1,9 +1,6 @@
 package com.mattibragge.sspv;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,22 +10,19 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 
 public class ScoreAdapter extends BaseAdapter {
 
+    Context context;
     LayoutInflater m_inflater;
     ArrayList<Score> scores;
     ImageView cover_iv;
-    FetchImage fetch_cover;
-    Handler handler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            cover_iv.setImageBitmap(fetch_cover.getBitmap());
-        }
-    };
 
     public ScoreAdapter(Context c, ArrayList<Score> s) {
+        context = c;
         scores = s;
         m_inflater = (LayoutInflater)c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -59,8 +53,7 @@ public class ScoreAdapter extends BaseAdapter {
         Score s = scores.get(i);
 
         // Fetching the cover image
-        fetch_cover = new FetchImage(s.getCoverLink(), handler);
-        fetch_cover.start();
+        Glide.with(context).load(s.getCoverLink()).into(cover_iv);
 
         String name = s.getSongName();
         song_name_tv.setText(name);
