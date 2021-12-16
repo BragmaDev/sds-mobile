@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ScoreAdapter extends BaseAdapter {
 
@@ -62,7 +63,7 @@ public class ScoreAdapter extends BaseAdapter {
         String rank_text = "#" + s.getRank();
         score_rank_tv.setText(rank_text);
 
-        String stats_text = String.format("%.2f%%, %.1fpp", s.getAccuracy(), s.getPp());
+        String stats_text = String.format(Locale.getDefault(), "%.2f%%, %.1fpp", s.getAccuracy(), s.getPp());
         score_stats_tv.setText(stats_text);
 
         String difficulty_text;
