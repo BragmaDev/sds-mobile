@@ -272,9 +272,10 @@ public class ProfileActivity extends AppCompatActivity {
                     String song_name = leaderboard.getString("songName");
                     String cover_link = leaderboard.getString("coverImage");
                     int score_rank = score.getInt("rank");
+                    int difficulty = leaderboard.getJSONObject("difficulty").getInt("difficulty");
                     double score_acc = (double)score.getInt("baseScore") / (double)leaderboard.getInt("maxScore") * 100;
                     double score_pp = score.getDouble("pp");
-                    Score s = new Score(song_name, cover_link, score_rank, score_acc, score_pp);
+                    Score s = new Score(song_name, cover_link, score_rank, difficulty, score_acc, score_pp);
                     scores.add(s);
                 }
             } catch (JSONException e) {

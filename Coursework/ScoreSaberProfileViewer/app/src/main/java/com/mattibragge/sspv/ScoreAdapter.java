@@ -49,6 +49,7 @@ public class ScoreAdapter extends BaseAdapter {
         TextView song_name_tv= (TextView) v.findViewById(R.id.songNameTv);
         TextView score_rank_tv = (TextView) v.findViewById(R.id.scoreRankTv);
         TextView score_stats_tv = (TextView) v.findViewById(R.id.scoreStatsTv);
+        TextView difficulty_tv = (TextView) v.findViewById(R.id.difficultyTv);
 
         Score s = scores.get(i);
 
@@ -63,6 +64,28 @@ public class ScoreAdapter extends BaseAdapter {
 
         String stats_text = String.format("%.2f%%, %.1fpp", s.getAccuracy(), s.getPp());
         score_stats_tv.setText(stats_text);
+
+        String difficulty_text;
+        switch (s.getDifficulty()) {
+            case 1:
+                difficulty_text = "Easy";
+                break;
+            case 3:
+                difficulty_text = "Normal";
+                break;
+            case 5:
+                difficulty_text = "Hard";
+                break;
+            case 7:
+                difficulty_text = "Expert";
+                break;
+            case 9:
+                difficulty_text = "Expert+";
+                break;
+            default:
+                difficulty_text = "";
+        }
+        difficulty_tv.setText(difficulty_text);
 
         return v;
     }
