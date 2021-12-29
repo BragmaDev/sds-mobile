@@ -109,6 +109,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     // Takes a country code and returns a corresponding flag emoji
+    // Source used: https://attacomsian.com/blog/how-to-convert-country-code-to-emoji-in-java
     private String codeToEmoji(String code) {
         int offset = 127397;
         if (code == null) return "";
@@ -134,6 +135,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     // Gets profile information from the API based on the player ID
+    // Source used: https://www.youtube.com/watch?v=5lNQLR53UtY
     class FetchProfileInfo extends Thread {
         StringBuffer response = new StringBuffer();
 
