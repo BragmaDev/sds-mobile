@@ -1,5 +1,9 @@
 # sds-mobile
 
+Student name: Matti Bragge
+
+<br>
+
 My course project is ScoreSaber Profile Viewer. It can be used to view player
 profiles hosted on ScoreSaber, an unofficial leaderboard website for the VR
 rhythm game Beat Saber.
